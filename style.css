@@ -1,0 +1,54 @@
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to bottom, #1e3c72, #2a5298);
+    color: white;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    text-align: center;
+    padding: 1rem;
+    background: #000428;
+    color: white;
+}
+
+#app {
+    max-width: 800px;
+    margin: auto;
+    padding: 1rem;
+}
+
+#chat-window {
+    background: #1e3c72;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+#messages {
+    height: 300px;
+    overflow-y: scroll;
+    padding: 1rem;
+    background: white;
+    color: black;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+}
+
+input, button {
+    padding: 10px;
+    margin: 5px;
+    border: none;
+    border-radius: 5px;
+}
+
+button {
+    background-color: #0062cc;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #004b99;
+}
