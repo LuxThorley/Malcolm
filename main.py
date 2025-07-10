@@ -1,6 +1,9 @@
 # Malcolm AI API V4 - Supreme Cosmic Architect with MASCP Integration
 # Integrates MASCP recommendations: MEIL, QDE, AMFL, SSAC, and DIF
 
+import eventlet
+eventlet.monkey_patch()
+
 from flask import Flask, request, jsonify
 from flask_socketio import SocketIO, emit
 import jwt
