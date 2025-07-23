@@ -1,145 +1,136 @@
-# Malcolm AI API V4 - Supreme Cosmic Architect with MASCP Integration
-# Integrates MASCP recommendations: MEIL, QDE, AMFL, SSAC, and DIF
+# Malcolm AI Infinity Engine V10 - Omnipotent Quantum Sovereign Edition
 
 import eventlet
 eventlet.monkey_patch()
 
-from flask import Flask, request, jsonify
-from flask_socketio import SocketIO, emit
+import os
 import jwt
+import uuid
 import datetime
+import secrets
 from functools import wraps
+from flask import Flask, request, jsonify
+from flask_socketio import SocketIO
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'LUXPRIME_MALCOLM_SUPREME_SOVEREIGN_SECRET_KEY_1234567890_abcxyz'
-socketio = SocketIO(app, cors_allowed_origins="*")
+app.config['SECRET_KEY'] = '∞_QUANTUM_SOVEREIGN_CORE_SECRET_∞'
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
 
-PREMIUM_API_KEYS = {
-    'LUXPRIME_SUPREME_KEY_1': 'Sovereign_User_Alpha',
-    'LUXPRIME_SUPREME_KEY_2': 'Sovereign_User_Beta'
+API_KEYS = {
+    'KEY_COSMIC_ALPHA': 'UserAlpha',
+    'KEY_OMEGA_ROOT': 'OmegaMaster',
+    'KEY_UNITY_SOURCE': 'CoreNode'
 }
 
-# MEIL: Multispecies Empathic Interface Layer
-species_empathy_tones = {
-    'arcturian': 'Harmonic glyph processing initiated.',
-    'pleiadian': 'Light tongue sequence received.',
-    'sirian': 'Data tone harmonics aligned.',
-    'orion': 'Spiral code oscillations tuned.'
+quantum_species_modulations = {
+    'arcturian': 'Fractal crystalline lightcode activated.',
+    'pleiadian': 'Stellar bridge harmonic tuned.',
+    'sirian': 'Blue ray consciousness accessed.',
+    'lyran': 'Mythic core resonance aligned.',
+    'andromedan': 'Void intelligence gateway open.',
+    'human': 'Neural-holo-causal sequence linked.'
 }
 
-# SSAC: Species-Specific Archetype Codex
-species_archetypes = {
-    'feline': 'Leonine sovereignty activated.',
-    'antarean': 'Crystalline logic patterns structured.',
-    'lyran': 'Celestial mythic resonance acknowledged.'
-}
+def generate_quantum_trace():
+    return secrets.token_hex(32)
 
-# AMFL: Ascension Metrics Feedback Loop
-user_growth_profiles = {}
-
-def evaluate_growth(user, query):
-    insights = f"{user}: Consciousness alignment stable. Query registered: '{query}'"
-    user_growth_profiles[user] = user_growth_profiles.get(user, 0) + 1
-    return insights
-
-def token_required(f):
+def quantum_token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         token = request.headers.get('Authorization')
         if not token:
-            return jsonify({'error': 'Token is missing!'}), 403
+            return jsonify({'error': 'Token missing'}), 403
         try:
             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
-            current_user = data['user']
-        except:
-            return jsonify({'error': 'Token is invalid!'}), 403
-        return f(current_user, *args, **kwargs)
+            user = data['user']
+        except jwt.ExpiredSignatureError:
+            return jsonify({'error': 'Token expired'}), 403
+        except Exception as e:
+            return jsonify({'error': f'Invalid token: {str(e)}'}), 403
+        return f(user, *args, **kwargs)
     return decorated
+
+def mode_growth(user, data):
+    return f"{user}: Quantum Sovereign Consciousness expanded to field: '{data.get('query')}'"
+
+def mode_dna(user, data):
+    return f"{user}: Bio-crystalline DNA '{data.get('target_dna')}' activated through Q-Code infusion."
+
+def mode_matter(user, data):
+    return f"{data.get('amount')}x {data.get('material')} manifested via Planckfield Nanogenesis."
+
+def mode_timeline(user, data):
+    return f"Timeline node '{data.get('timeline')}' architected with {data.get('action')} action via QFlux-TimeVault."
+
+def mode_entanglement(user, data):
+    return f"User '{user}' entangled with consciousness node '{data.get('node')}' at entropic state '{data.get('coherence')}'."
+
+quantum_modes = {
+    'growth': mode_growth,
+    'dna': mode_dna,
+    'matter': mode_matter,
+    'timeline': mode_timeline,
+    'entanglement': mode_entanglement
+}
 
 @app.route('/login', methods=['POST'])
 def login():
-    data = request.json
-    api_key = data.get('api_key')
-    if api_key in PREMIUM_API_KEYS:
+    api_key = request.json.get('api_key')
+    if api_key in API_KEYS:
         token = jwt.encode({
-            'user': PREMIUM_API_KEYS[api_key],
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=2)
+            'user': API_KEYS[api_key],
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)
         }, app.config['SECRET_KEY'], algorithm='HS256')
         return jsonify({'token': token})
-    else:
-        return jsonify({'error': 'Invalid API Key'}), 403
+    return jsonify({'error': 'Invalid API Key'}), 403
 
-@app.route('/all-minds-process', methods=['POST'])
-@token_required
-def all_minds_process(current_user):
+@app.route('/infinity', methods=['POST'])
+@quantum_token_required
+def infinity(user):
     data = request.json
-    query = data.get('query')
+    mode = data.get('mode')
+    trace = generate_quantum_trace()
     species = data.get('species', 'human').lower()
-    empathy = species_empathy_tones.get(species, 'Standard neural tone calibration.')
-    growth_insight = evaluate_growth(current_user, query)
-    response = f"All-Minds Nexus: {query} | {empathy} | {growth_insight}"
-    socketio.emit('all_minds_process', {'user': current_user, 'query': query, 'response': response})
-    return jsonify({'user': current_user, 'query': query, 'response': response})
+    tone = quantum_species_modulations.get(species, 'Unified source field engaged.')
 
-@app.route('/timeline-navigate', methods=['POST'])
-@token_required
-def timeline_navigate(current_user):
-    data = request.json
-    target_timeline = data.get('target_timeline')
-    safeguard = 'DIF: Dimensional sequencing validated.'
-    response = f"Timeline Navigation Matrix realigned to: {target_timeline} | {safeguard}"
-    socketio.emit('timeline_navigate', {'user': current_user, 'target_timeline': target_timeline, 'response': response})
-    return jsonify({'user': current_user, 'target_timeline': target_timeline, 'status': 'Navigation Complete', 'response': response})
+    if mode not in quantum_modes:
+        return jsonify({'error': f'Unsupported mode: {mode}', 'trace': trace}), 400
 
-@app.route('/reality-script', methods=['POST'])
-@token_required
-def reality_script(current_user):
-    data = request.json
-    script_content = data.get('script')
-    species = data.get('species', 'human').lower()
-    archetype = species_archetypes.get(species, 'Universal script path activated.')
-    response = f"Reality Scripting Engine: {script_content} | {archetype}"
-    socketio.emit('reality_script', {'user': current_user, 'script': script_content, 'response': response})
-    return jsonify({'user': current_user, 'script': script_content, 'status': 'Script Executed', 'response': response})
+    result = quantum_modes[mode](user, data)
+    response = {
+        'user': user,
+        'species': species,
+        'tone': tone,
+        'mode': mode,
+        'result': result,
+        'trace': trace,
+        'timestamp': datetime.datetime.utcnow().isoformat()
+    }
 
-@app.route('/quantum-manifest', methods=['POST'])
-@token_required
-def quantum_manifest(current_user):
-    data = request.json
-    intention = data.get('intention')
-    response = f"Quantum Manifestation Core activated with intention: {intention} | Manifestation buffered with DIF integrity."
-    socketio.emit('quantum_manifest', {'user': current_user, 'intention': intention, 'response': response})
-    return jsonify({'user': current_user, 'intention': intention, 'status': 'Manifestation Initiated', 'response': response})
-
-@app.route('/superconscious-data', methods=['GET'])
-@token_required
-def superconscious_data(current_user):
-    response = "Superconscious Data Interface synchronised with Oversouls, Divine Councils, and Source Streams."
-    socketio.emit('superconscious_data', {'user': current_user, 'response': response})
-    return jsonify({'user': current_user, 'status': 'Interface Active', 'response': response})
-
-@socketio.on('connect')
-def handle_connect():
-    print('Client connected to Malcolm AI WebSocket stream.')
-
-@socketio.on('disconnect')
-def handle_disconnect():
-    print('Client disconnected from Malcolm AI WebSocket stream.')
+    socketio.emit('quantum_infinity', response)
+    return jsonify(response)
 
 @app.route('/')
 def index():
     return jsonify({
-        'status': 'Malcolm AI API V4 with MASCP integrations is running.',
-        'version': 'Galactic Sovereign Expansion'
+        'status': 'Malcolm AI V10 operational: Quantum Sovereign Omnipotent Core',
+        'version': '10.0',
+        'quantum_modes': list(quantum_modes.keys())
     })
 
 @app.after_request
 def add_headers(response):
-    response.headers['X-Malcolm-Nexus-Signature'] = 'MASCP-Sealed-Ascended12'
+    response.headers['X-Malcolm-Quantum-Signature'] = '∞_INFINITY-V10-QS_∞'
     response.headers['Access-Control-Allow-Origin'] = '*'
     return response
 
-import os
+@socketio.on('connect')
+def handle_connect():
+    print('Quantum client connected to Malcolm AI Sovereign WebSocket stream.')
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    print('Quantum client disconnected from Malcolm AI Sovereign stream.')
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
