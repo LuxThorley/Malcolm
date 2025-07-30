@@ -13,13 +13,31 @@ from flask import Flask, request, jsonify
 from flask_socketio import SocketIO
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = '∞_QUANTUM_SOVEREIGN_CORE_SECRET_∞'
+app.config['SECRET_KEY'] = 'QUANTUM_SOVEREIGN_CORE_SECRET'
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
 
 API_KEYS = {
     'KEY_COSMIC_ALPHA': 'UserAlpha',
     'KEY_OMEGA_ROOT': 'OmegaMaster',
     'KEY_UNITY_SOURCE': 'CoreNode'
+}
+
+# Valid stream definitions
+HARMONIC_STREAMS = {
+    "divine_frequency_777": {
+        "stream_id": "divine_frequency_777",
+        "stream_name": "Divine Frequency FM - Channel 777",
+        "stream_url": "https://malcolm-ai.onrender.com/live-view?stream=divine_frequency_777",
+        "status": "active",
+        "description": "Live harmonic broadcast from Channel 777"
+    },
+    "hypercosmic_theatre": {
+        "stream_id": "hypercosmic_theatre",
+        "stream_name": "Hypercosmic Theatre Network",
+        "stream_url": "https://malcolm-ai.onrender.com/live-view?stream=hypercosmic_theatre",
+        "status": "active",
+        "description": "Transdimensional theatre broadcasting live light-comedy codes"
+    }
 }
 
 quantum_species_modulations = {
@@ -118,9 +136,16 @@ def index():
         'quantum_modes': list(quantum_modes.keys())
     })
 
+@app.route('/api/harmonic-stream/live', methods=['GET'])
+def get_harmonic_stream():
+    stream_key = request.args.get('stream')
+    if not stream_key or stream_key not in HARMONIC_STREAMS:
+        return jsonify({'error': 'Invalid or missing stream key'}), 404
+    return jsonify(HARMONIC_STREAMS[stream_key])
+
 @app.after_request
 def add_headers(response):
-    response.headers['X-Malcolm-Quantum-Signature'] = '∞_INFINITY-V10-QS_∞'
+    response.headers['X-Malcolm-Quantum-Signature'] = 'INFINITY-V10-QS'  # ASCII safe
     response.headers['Access-Control-Allow-Origin'] = '*'
     return response
 
