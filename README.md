@@ -1,0 +1,30 @@
+# SECURITY
+MALCOLM_SECRET=please_change_me
+MALCOLM_JWT_ALG=HS256
+MALCOLM_JWT_TTL_HOURS=24
+FLASK_SECRET=another_random_secret
+
+
+
+
+# API KEYS (JSON object mapping key -> user label)
+MALCOLM_API_KEYS={"KEY_COSMIC_ALPHA":"UserAlpha","KEY_OMEGA_ROOT":"OmegaMaster","KEY_UNITY_SOURCE":"CoreNode"}
+
+
+
+
+# CORS
+CORS_ORIGINS=*
+CORS_ALLOW_ORIGIN=*
+
+
+
+
+# Streams (optional JSON to override/extend defaults)
+MALCOLM_STREAMS={}
+
+
+
+
+# Version label
+MALCOLM_VERSION=Ω.0.0
