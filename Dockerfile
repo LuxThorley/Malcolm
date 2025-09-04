@@ -1,5 +1,9 @@
 # Use official lightweight Python image
+<<<<<<< HEAD
 FROM python:3.10-slim
+=======
+FROM python:3.8.1-slim
+>>>>>>> 533ec5cfe1dd892136685d35183546bec105e974
 
 # Set working directory
 WORKDIR /app
