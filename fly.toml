@@ -1,3 +1,6 @@
+# fly.toml file for Malcolm AI Omni API
+# Multi-region deployment: London, Newark, Singapore (3 shared machines)
+
 app = "malcolm-ai"
 primary_region = "lhr"
 
