@@ -135,6 +135,33 @@ limiter = Limiter(get_remote_address, app=app, default_limits=["200 per hour", "
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger("malcolm.omni")
 
+from flask import render_template_string  # add this import at the top with others
+
+@app.route("/hypercosmic")
+def hypercosmic():
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Hypercosmic Theatre Channel</title>
+      <style>
+        body { margin: 0; background: black; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        iframe { border: none; width: 80vw; height: 45vw; max-width: 1280px; max-height: 720px; }
+      </style>
+    </head>
+    <body>
+      <iframe width="800" height="450"
+        src="https://www.youtube.com/embed/NOtYFwxtflk?autoplay=1"
+        title="Hypercosmic Theatre Channel"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen>
+      </iframe>
+    </body>
+    </html>
+    """)
+
+
 # =============================================================
 # Models & Utilities
 # =============================================================
