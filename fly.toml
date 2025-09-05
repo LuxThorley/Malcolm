@@ -6,8 +6,6 @@ primary_region = "lhr"
 
 [env]
   MALCOLM_ASYNC_MODE = "eventlet"
-  MALCOLM_SECRET = "super_secure_secret"
-  MALCOLM_API_KEYS = '{"KEY_COSMIC_ALPHA":"UserAlpha","KEY_OMEGA_ROOT":"OmegaMaster"}'
 
 [[services]]
   internal_port = 8080
@@ -21,3 +19,31 @@ primary_region = "lhr"
   [[services.ports]]
     handlers = ["tls", "http"]
     port = 443
+
+[deploy]
+  strategy = "rolling"
+
+[experimental]
+  auto_rollback = true
+
+[processes]
+  app = ""
+
+[vm]
+  size = "shared-cpu-1x"
+
+[scale]
+  count = 3
+
+[checks]
+  [checks.health]
+    type = "http"
+    path = "/healthz"
+    interval = "15s"
+    timeout = "2s"
+    grace_period = "30s"
+
+[regions]
+  lhr = 1
+  ewr = 1
+  sin = 1
