@@ -172,14 +172,11 @@ def process_mode(mode: str, payload: Dict[str, Any]) -> Dict[str, Any]:
 # Routes
 # =============================================================
 
+from flask import render_template
+
 @app.route("/")
 def index_root():
-    return jsonify({
-        "message": "Welcome to Malcolm AI Omni API — Infinity Engine",
-        "version": APP_VERSION,
-        "modes": SUPPORTED_MODES,
-        "docs": "Visit /meta or the landing page for instructions."
-    })
+    return render_template("index.html", version=APP_VERSION, modes=SUPPORTED_MODES)
 
 @app.route("/healthz")
 def healthz():

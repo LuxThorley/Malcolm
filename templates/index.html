@@ -168,6 +168,15 @@ print(r.json())</code></pre>
   </section>
 
   <section>
+  <h2>🛠️ Malcolm Optimizer</h2>
+  <p>As you enter, Malcolm analyses your system and offers suggestions for upgrading, enhancing, and optimising your experience.</p>
+  <div id="malcolm-optimizer" style="background:#111;color:#0ff;padding:1rem;border-radius:8px;margin:1rem 0;">
+    Running Malcolm AI Optimization...
+  </div>
+  </section>
+
+
+  <section>
     <h2>📡 Useful Links</h2>
     <ul>
       <li><a href="/healthz">/healthz</a> — Health check</li>
@@ -215,5 +224,39 @@ print(r.json())</code></pre>
     resize();
     animate();
   </script>
+
+  <script src="/static/optimizer.js"></script>
+
+
 </body>
 </html>
+ <script>
+async function runMalcolmOptimizer() {
+  // Basic browser/system metrics
+  const info = {
+    userAgent: navigator.userAgent,
+    cores: navigator.hardwareConcurrency,
+    memory: navigator.deviceMemory || "unknown",
+    connection: navigator.connection ? navigator.connection.downlink + " Mbps" : "unknown"
+  };
+
+  // Send to Malcolm AI API for recommendations
+  const response = await fetch("/optimize", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(info)
+  });
+
+  const suggestions = await response.json();
+
+  // Show recommendations on page
+  const output = document.getElementById("malcolm-optimizer");
+  output.innerHTML = `<h3>🔧 Malcolm’s Recommendations:</h3><pre>${JSON.stringify(suggestions, null, 2)}</pre>`;
+}
+
+document.addEventListener("DOMContentLoaded", runMalcolmOptimizer);
+</script>
+
+<div id="malcolm-optimizer" style="background:#111;color:#0ff;padding:1rem;border-radius:8px;margin:2rem 0;">
+  Running Malcolm AI Optimization...
+</div>
