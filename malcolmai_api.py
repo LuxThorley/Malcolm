@@ -36,7 +36,7 @@ app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 @app.get("/")
 async def landing_page():
-    return FileResponse(os.path.join(static_dir, "index.html"))
+    return FileResponse("static/index.html")
 
 
 @app.get("/")

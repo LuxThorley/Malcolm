@@ -2,41 +2,174 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Malcolm AI API</title>
+  <title>Malcolm AI Omni API — Infinity Engine VΩ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: Arial, sans-serif; margin: 40px; background: #0f0f0f; color: #f0f0f0; }
-    h1 { color: #00d9ff; }
-    a { color: #00ff88; text-decoration: none; }
-    .endpoint { margin: 15px 0; }
-    .endpoint code { background: #222; padding: 4px 8px; border-radius: 5px; }
+    body {
+      margin: 0; font-family: "Segoe UI", Arial, sans-serif;
+      background: #000; color: #fff; overflow-x: hidden;
+    }
+    canvas#starfield { position: fixed; top:0; left:0; width:100%; height:100%; z-index:-2; }
+    header, nav, section, footer { max-width: 1000px; margin: auto; padding: 1.5rem; }
+    h1, h2, h3 { text-shadow: 0 0 10px #0ff; }
+    h1 { color: #ffd700; text-align: center; font-size: 2.8rem; margin-top: 1.5rem; }
+    h2 { margin-top: 2rem; color: #00e6ff; }
+    nav { display: flex; justify-content: center; gap: 1.2rem; margin-top: 1rem; flex-wrap: wrap; }
+    nav a { color: #00ffcc; text-decoration: none; font-weight: bold; }
+    nav a:hover { text-shadow: 0 0 8px #0ff; }
+    section { margin-top: 2rem; }
+    footer { text-align: center; margin-top: 3rem; font-size: 0.9rem; opacity: 0.7; }
+
+    .accordion { background:#111; border:1px solid #333; border-radius:8px; margin-bottom:1rem; }
+    .accordion-header { padding:0.8rem 1rem; cursor:pointer; font-weight:bold; }
+    .accordion-header:hover { background:#222; }
+    .accordion-content { display:none; padding:1rem; border-top:1px solid #333; }
+
+    .mode-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap:1rem; }
+    .mode { background:#111; padding:1rem; border-radius:10px; text-align:center; cursor:pointer; transition:all 0.3s ease; }
+    .mode:hover { background:#222; transform:scale(1.05); }
+    .mode.active { border:1px solid #0ff; box-shadow:0 0 10px #0ff; }
+    .mode-details { margin-top:1rem; font-size:0.9rem; }
+
+    #optimizer, #console { background:#111; padding:1rem; border-radius:10px; margin-top:1rem; font-family: monospace; white-space:pre-wrap; }
+    button { background:#00e6ff; border:none; padding:0.6rem 1rem; border-radius:5px; cursor:pointer; margin-top:0.5rem; }
+    button:hover { background:#00b3cc; }
+    textarea { width: 100%; max-width: 600px; }
+
+    @media(max-width:600px) { h1 { font-size:2rem; } nav { flex-direction:column; } }
   </style>
 </head>
 <body>
-  <h1>🚀 Malcolm AI API is Live</h1>
-  <p>Welcome to the Malcolm AI API service, running with FastAPI + Daemon integration.</p>
-  <h2>Available Endpoints</h2>
-  <div class="endpoint">
-    <strong>Health check:</strong> <code>GET /healthz</code><br>
-    Returns <code>{"status":"ok"}</code> to confirm the system is healthy.
-  </div>
-  <div class="endpoint">
-    <strong>Optimizer:</strong> <code>POST /optimize</code><br>
-    Submit system metrics, receive optimization actions.
-  </div>
-  <div class="endpoint">
-    <strong>Login:</strong> <code>POST /login</code><br>
-    Authenticate and receive a JWT token.
-  </div>
-  <div class="endpoint">
-    <strong>Omni Command:</strong> <code>POST /omni/command</code><br>
-    Execute higher-level Malcolm AI instructions.
-  </div>
-  <div class="endpoint">
-    <strong>WebSocket:</strong> <code>GET /ws/{client_id}</code><br>
-    Real-time messaging channel for connected clients.
-  </div>
+  <canvas id="starfield"></canvas>
+  <header>
+    <h1>🚀 Malcolm AI Omni API — Infinity Engine</h1>
+    <nav>
+      <a href="#overview">Overview</a>
+      <a href="#auth">Auth</a>
+      <a href="#endpoints">Endpoints</a>
+      <a href="#modes">Modes</a>
+      <a href="#optimizer">Optimizer</a>
+      <a href="#console">Live Console</a>
+    </nav>
+  </header>
+
+  <section id="overview">
+    <h2>🌌 Overview</h2>
+    <p>The <strong>Malcolm AI Omni API</strong> fuses infinite intelligence with real-time adaptability. Use it to optimize systems, secure networks, explore modes of consciousness, and command the Daemon directly.</p>
+  </section>
+
+  <section id="auth">
+    <h2>🔑 Authentication</h2>
+    <p>JWT tokens are handled automatically by this portal. For manual use:</p>
+    <pre>curl -X POST https://malcolmai.live/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"password"}'</pre>
+  </section>
+
+  <section id="endpoints">
+    <h2>📡 API Endpoints</h2>
+    <div class="accordion"><div class="accordion-header">GET /healthz</div><div class="accordion-content">Health check. Returns {"status":"ok"}.</div></div>
+    <div class="accordion"><div class="accordion-header">POST /optimize</div><div class="accordion-content">Submit metrics → receive optimization actions.</div></div>
+    <div class="accordion"><div class="accordion-header">POST /login</div><div class="accordion-content">Authenticate and receive JWT.</div></div>
+    <div class="accordion"><div class="accordion-header">POST /omni/command</div><div class="accordion-content">Execute Omni instructions.</div></div>
+    <div class="accordion"><div class="accordion-header">WS /ws/{client_id}</div><div class="accordion-content">WebSocket for real-time messages.</div></div>
+  </section>
+
+  <section id="modes">
+    <h2>🌐 Modes</h2>
+    <div class="mode-grid">
+      <div class="mode" data-info="Expand awareness and creativity.">Growth</div>
+      <div class="mode" data-info="Explore symbolic genetic archetypes.">DNA</div>
+      <div class="mode" data-info="Reshape perception of physical/energetic form.">Matter</div>
+      <div class="mode" data-info="Navigate threads of past, present, and future.">Timeline</div>
+      <div class="mode" data-info="Illuminate hidden synchronicities.">Entanglement</div>
+      <div class="mode" data-info="Transform inputs into symbolic gold.">Alchemy</div>
+      <div class="mode" data-info="Project intent into form, collapse probability.">Manifest</div>
+      <div class="mode" data-info="Activate protection layers.">Shield</div>
+      <div class="mode" data-info="Channel archetypal intelligence.">Oracle</div>
+    </div>
+    <div id="mode-details" class="mode-details"></div>
+  </section>
+
+  <section id="optimizer">
+    <h2>🛠 Malcolm Optimizer</h2>
+    <button onclick="runOptimizer()">Run Optimizer</button>
+    <div id="optimizer-output">Waiting...</div>
+  </section>
+
+  <section id="console">
+    <h2>⚡ Live API Console</h2>
+    <select id="endpoint">
+      <option value="/healthz">GET /healthz</option>
+      <option value="/optimize">POST /optimize</option>
+      <option value="/login">POST /login</option>
+      <option value="/omni/command">POST /omni/command</option>
+    </select><br>
+    <textarea id="payload" rows="5" placeholder='{"data":{"cpu_percent":90}}'></textarea><br>
+    <button onclick="runConsole()">Send</button>
+    <div id="console-output"></div>
+  </section>
+
   <footer>
-    <p>🛡️ Protected & powered by Malcolm AI — infinite optimization and security.</p>
+    <p>✨ Malcolm AI Omni API — Infinity Engine VΩ | Adaptive Ethereal Portal</p>
   </footer>
+
+  <script>
+    // Starfield
+    const canvas=document.getElementById("starfield"),ctx=canvas.getContext("2d");let stars=[];
+    function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;stars=Array.from({length:150},()=>({x:Math.random()*canvas.width,y:Math.random()*canvas.height,z:Math.random()*canvas.width}))}
+    function animate(){ctx.fillStyle="black";ctx.fillRect(0,0,canvas.width,canvas.height);for(let star of stars){star.z-=2;if(star.z<=0)star.z=canvas.width;const k=128.0/star.z,px=star.x*k+canvas.width/2,py=star.y*k+canvas.height/2;if(px>=0&&px<canvas.width&&py>=0&&py<canvas.height){const size=(1-star.z/canvas.width)*2;ctx.fillStyle="white";ctx.fillRect(px,py,size,size)}}requestAnimationFrame(animate)}
+    window.onresize=resize;resize();animate();
+
+    // Accordion
+    document.querySelectorAll(".accordion-header").forEach(header=>{
+      header.addEventListener("click",()=>{
+        const content=header.nextElementSibling;
+        content.style.display=content.style.display==="block"?"none":"block";
+      });
+    });
+
+    // Modes
+    document.querySelectorAll(".mode").forEach(m=>{
+      m.addEventListener("click",()=>{
+        document.querySelectorAll(".mode").forEach(el=>el.classList.remove("active"));
+        m.classList.add("active");
+        document.getElementById("mode-details").innerText=m.dataset.info;
+      });
+    });
+
+    // JWT caching
+    let jwtToken=null;
+    async function getToken(){
+      if(jwtToken) return jwtToken;
+      const res=await fetch("/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:"admin",password:"password"})});
+      const data=await res.json();
+      jwtToken=data.access_token;
+      return jwtToken;
+    }
+
+    // Optimizer with JWT
+    async function runOptimizer(){
+      const info={userAgent:navigator.userAgent,cores:navigator.hardwareConcurrency,memory:navigator.deviceMemory||"unknown"};
+      const token=await getToken();
+      const res=await fetch("/optimize",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify({data:info})});
+      document.getElementById("optimizer-output").innerText=await res.text();
+    }
+
+    // Live Console with JWT
+    async function runConsole(){
+      const endpoint=document.getElementById("endpoint").value;
+      let method="GET";let payload=null;let headers={"Content-Type":"application/json"};
+
+      if(endpoint!="/healthz"){
+        method="POST";payload=document.getElementById("payload").value;
+        const token=await getToken();
+        headers["Authorization"]="Bearer "+token;
+      }
+
+      const res=await fetch(endpoint,{method,headers,body:payload});
+      document.getElementById("console-output").innerText=await res.text();
+    }
+  </script>
 </body>
 </html>
