@@ -26,3 +26,4 @@ EXPOSE 8080
 
 # Start FastAPI (main:main_app) on 0.0.0.0:8080 — JSON exec form is important
 CMD ["uvicorn", "main:main_app", "--host", "0.0.0.0", "--port", "8080"]
+
