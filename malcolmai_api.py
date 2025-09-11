@@ -1,54 +1,39 @@
 from fastapi import FastAPI, Request, Depends, WebSocket, WebSocketDisconnect
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.staticfiles import StaticFiles
 from jose import JWTError, jwt
+from typing import Dict
 import time
+import os
+import subprocess
+import sys
 
 # === CONFIG ===
-SECRET_KEY = "your-secret-key"  # Replace with secure value
+SECRET_KEY = "your-secret-key"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_SECONDS = 3600
 
-
 app = FastAPI()
 
-import subprocess
-import sys
-import os
-
-from fastapi import FastAPI
-
-app = FastAPI()
-
-# Auto-start daemon when API server boots
+# Auto-start daemon on startup
 @app.on_event("startup")
 async def start_daemon():
     daemon_path = os.path.join(os.path.dirname(__file__), "malcolmai_daemon.py")
-    subprocess.Popen([sys.executable, daemon_path])
-
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-import os
+    if os.path.exists(daemon_path):
+        subprocess.Popen([sys.executable, daemon_path])
 
 # Serve static files
 static_dir = os.path.join(os.path.dirname(__file__), "static")
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
-from fastapi.responses import FileResponse
 @app.get("/", include_in_schema=False)
 async def root():
     return FileResponse("static/index.html")
 
-
-@app.get("/")
-async def landing_page():
-    return FileResponse("static/index.html")
-
-
 @app.get("/healthz")
 async def healthz():
     return {"status": "ok"}
-
 
 security = HTTPBearer()
 
@@ -67,30 +52,22 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
     except JWTError:
         raise Exception("Invalid or expired token")
 
-# === AUTH ENDPOINTS ===
+# === AUTH ENDPOINT ===
 @app.post("/login")
 async def login(request: Request):
     data = await request.json()
-    username = data.get("username")
-    password = data.get("password")
-
-    # Simple hardcoded check (replace with DB or other auth system)
-    if username == "admin" and password == "password":
-        token = create_access_token({"sub": username})
+    if data.get("username") == "admin" and data.get("password") == "password":
+        token = create_access_token({"sub": "admin"})
         return {"access_token": token}
     return {"error": "Invalid credentials"}
 
 # === OPTIMIZER ENDPOINT ===
 @app.post("/optimize")
 async def optimize(request: Request, user: dict = Depends(verify_token)):
-    """
-    Receives system metrics from daemon and returns actions.
-    """
     data = await request.json()
     metrics = data.get("data", {})
     actions = []
 
-    # Example optimization rules
     if metrics.get("cpu_percent", 0) > 80:
         actions.append({"type": "clear_cache"})
     if metrics.get("memory", {}).get("percent", 0) > 85:
@@ -98,17 +75,19 @@ async def optimize(request: Request, user: dict = Depends(verify_token)):
     if metrics.get("disk", {}).get("percent", 0) > 90:
         actions.append({"type": "archive_old_logs"})
 
+    if not actions:
+        actions.append({"type": "noop", "detail": "System stable"})
+
     return JSONResponse(content={"actions": actions})
 
-# === OMNI API SAMPLE ENDPOINT ===
+# === OMNI COMMAND ENDPOINT ===
 @app.post("/omni/command")
 async def omni_command(request: Request, user: dict = Depends(verify_token)):
     data = await request.json()
-    command = data.get("command", "ping")
-    return {"received_command": command, "status": "executed"}
+    return {"received_command": data.get("command", "ping"), "status": "executed"}
 
-# === REALTIME SOCKETS VIA WEBSOCKETS ===
-clients = {}
+# === WEBSOCKETS ===
+clients: Dict[str, WebSocket] = {}
 
 @app.websocket("/ws/{client_id}")
 async def websocket_endpoint(websocket: WebSocket, client_id: str):
@@ -117,12 +96,6 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
     try:
         while True:
             data = await websocket.receive_text()
-            # Echo back or broadcast
             await websocket.send_text(f"Message from {client_id}: {data}")
     except WebSocketDisconnect:
         del clients[client_id]
-
-# === STARTUP ===
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("malcolmai_api:app", host="0.0.0.0", port=8000, reload=True)
