@@ -34,14 +34,15 @@ import os
 static_dir = os.path.join(os.path.dirname(__file__), "static")
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
-@app.get("/")
-async def landing_page():
+from fastapi.responses import FileResponse
+@app.get("/", include_in_schema=False)
+async def root():
     return FileResponse("static/index.html")
 
 
 @app.get("/")
-async def root():
-    return {"status": "Malcolm AI API is live", "endpoints": ["/optimize", "/login", "/omni/command", "/ws/{client_id}"]}
+async def landing_page():
+    return FileResponse("static/index.html")
 
 
 @app.get("/healthz")

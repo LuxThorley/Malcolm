@@ -286,154 +286,99 @@
 
   <!-- Scripts -->
   <script>
-    /* ---------- Starfield ---------- */
-    const cvs=document.getElementById("starfield"),ctx=cvs.getContext("2d"); let stars=[];
-    function size(){ cvs.width=innerWidth; cvs.height=innerHeight;
-      stars=Array.from({length:160},()=>({x:Math.random()*cvs.width,y:Math.random()*cvs.height,z:Math.random()*cvs.width}))
-    }
-    function draw(){
-      ctx.fillStyle="#000"; ctx.fillRect(0,0,cvs.width,cvs.height);
-      for(const s of stars){ s.z-=2; if(s.z<=0)s.z=cvs.width; const k=128/s.z, x=s.x*k+cvs.width/2, y=s.y*k+cvs.height/2;
-        if(x>=0&&x<cvs.width&&y>=0&&y<cvs.height){ const w=(1-s.z/cvs.width)*2; ctx.fillStyle="#fff"; ctx.fillRect(x,y,w,w) }
-      }
-      requestAnimationFrame(draw)
-    }
-    addEventListener("resize", size); size(); draw();
+  /* ---------- Starfield ---------- */
+  const cvs=document.getElementById("starfield"),ctx=cvs.getContext("2d");let stars=[];
+  function size(){cvs.width=innerWidth;cvs.height=innerHeight;stars=Array.from({length:120},()=>({x:Math.random()*cvs.width,y:Math.random()*cvs.height,z:Math.random()*cvs.width}))}
+  function draw(){ctx.fillStyle="#000";ctx.fillRect(0,0,cvs.width,cvs.height);for(const s of stars){s.z-=2;if(s.z<=0)s.z=cvs.width;const k=128/s.z,x=s.x*k+cvs.width/2,y=s.y*k+cvs.height/2;if(x>=0&&x<cvs.width&&y>=0&&y<cvs.height){const w=(1-s.z/cvs.width)*2;ctx.fillStyle="#fff";ctx.fillRect(x,y,w,w)}}requestAnimationFrame(draw)}window.onresize=size;size();draw();
 
-    /* ---------- Infinity Stream ---------- */
-    (function startInfinity(){
-      const box=document.getElementById("infOut");
-      try{
-        const es=new EventSource("/infinity/stream");
-        es.onopen=()=>{ box.textContent="🔗 Connected to Infinity Stream…"; };
-        es.onmessage=(ev)=>{
-          box.textContent += "\n" + ev.data;
-          box.scrollTop=box.scrollHeight; // auto-scroll
-        };
-        es.onerror=(err)=>{
-          box.textContent += "\n[Error: stream interrupted, attempting reconnect]";
-        };
-      }catch(e){
-        box.textContent="❌ Could not connect: "+e.message;
-      }
-    })();
-
-
-    /* ---------- Accordion ---------- */
-    document.querySelectorAll(".acc-h").forEach(h=>h.addEventListener("click",()=>{
-      const c=h.nextElementSibling; c.style.display=c.style.display==="block"?"none":"block";
-    }));
-
-    /* ---------- Modes ---------- */
-    const md=document.getElementById("mode-details");
-    document.querySelectorAll(".mode").forEach(card=>{
-      card.addEventListener("click",()=>{
-        document.querySelectorAll(".mode").forEach(el=>el.classList.remove("active"));
-        card.classList.add("active"); md.textContent = `${card.dataset.name} — ${card.dataset.info}`;
-      })
-    });
-
-    /* ---------- Auth / Token ---------- */
-    let JWT=null; // memory cache
-    async function login(username, password){
-      const r=await fetch("/login",{
-        method:"POST", headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({username,password})
-      });
-      const t=await safeJson(r);
-      if(r.ok && t && t.access_token){ JWT=t.access_token; return {ok:true, data:t} }
-      return {ok:false, error:t || {status:r.status, text:await r.text()}};
-    }
-    async function ensureToken(){
-      if(JWT) return JWT;
-      const u=document.getElementById("u").value||"admin";
-      const p=document.getElementById("p").value||"password";
+  /* ---------- Auth / Token ---------- */
+  let JWT=null;
+  async function login(username, password){
+    const r=await fetch("/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username,password})});
+    const j=await r.json().catch(()=>null);
+    if(r.ok && j && j.access_token){ JWT=j.access_token; return {ok:true,data:j}; }
+    return {ok:false,error:j||{status:r.status,text:await r.text()}};
+  }
+  async function getToken(){
+    if(JWT) return JWT;
+    const u=document.getElementById("u")?.value||"admin";
+    const p=document.getElementById("p")?.value||"password";
+    const res=await login(u,p);
+    if(!res.ok) throw new Error("Auth failed");
+    return JWT;
+  }
+  document.getElementById("btnLogin").addEventListener("click", async ()=>{
+    const u=document.getElementById("u").value, p=document.getElementById("p").value, box=document.getElementById("authOut");
+    box.textContent="Logging in…";
+    try{
       const res=await login(u,p);
-      if(!res.ok) throw new Error("Login failed: "+JSON.stringify(res.error));
-      return JWT;
+      box.textContent=res.ok?("✅ "+JSON.stringify(res.data,null,2)):("❌ "+JSON.stringify(res.error,null,2));
+    }catch(e){ box.textContent="❌ "+e.message; }
+  });
+
+  /* ---------- Multilingual Adaptive Interpreter ---------- */
+  function interpretInput(raw, endpoint){
+    const text=raw.toLowerCase();
+    let body={};
+    const numMatch=text.match(/\d+/g);
+    const synonyms={
+      cpu:["cpu","procesador","processeur"],
+      memory:["memory","memoria","mémoire","ram"],
+      disk:["disk","disco","disque"],
+      shield:["shield","proteger","bouclier"],
+      timeline:["timeline","tiempo","chronologie"],
+      oracle:["oracle","vidente","prophète"],
+      optimize:["optimize","optimizar","optimiser"]
+    };
+    if(endpoint==="/optimize"){
+      body.data={};
+      if(synonyms.cpu.some(w=>text.includes(w))) body.data.cpu_percent=numMatch?parseInt(numMatch[0]):80;
+      if(synonyms.memory.some(w=>text.includes(w))) body.data.memory={percent:numMatch?parseInt(numMatch[0]):70};
+      if(synonyms.disk.some(w=>text.includes(w))) body.data.disk={percent:numMatch?parseInt(numMatch[0]):65};
+      if(Object.keys(body.data).length===0){ body.data={note:"generic optimization requested"}; }
     }
-
-    /* ---------- Fetch helpers ---------- */
-    async function safeJson(resp){
-      const ct=resp.headers.get("content-type")||"";
-      if(ct.includes("application/json")){ try{ return await resp.json() }catch{ return null } }
-      return null;
+    else if(endpoint==="/omni/command"){
+      if(synonyms.shield.some(w=>text.includes(w))) body.command="shield:activate";
+      else if(synonyms.timeline.some(w=>text.includes(w))) body.command="timeline:navigate";
+      else if(synonyms.oracle.some(w=>text.includes(w))) body.command="oracle:consult";
+      else body.command=raw;
     }
-    function pretty(obj){ try{ return JSON.stringify(obj, null, 2) }catch{ return String(obj) } }
+    else { body.input=raw; }
+    return body;
+  }
 
-    async function apiFetch(path, {method="GET", body=null, auth=false}={}){
-      const headers={"Content-Type":"application/json"};
-      if(auth){ const tok=await ensureToken(); headers["Authorization"]="Bearer "+tok }
-      const r=await fetch(path,{method,headers,body});
-      const j=await safeJson(r);
-      return { ok:r.ok, status:r.status, headers:r.headers, json:j, text: j? null : await r.text() };
+  /* ---------- Optimizer ---------- */
+  document.getElementById("btnOpt").onclick=async()=>{
+    const box=document.getElementById("optOut");
+    box.textContent="Running scan…";
+    const info={userAgent:navigator.userAgent,cores:navigator.hardwareConcurrency,memory:navigator.deviceMemory||"unknown"};
+    try{
+      const tok=await getToken();
+      const r=await fetch("/optimize",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+tok},body:JSON.stringify({data:info})});
+      const j=await r.json().catch(()=>null);
+      if(r.ok && j){ box.textContent="✅ Suggestions:\n"+JSON.stringify(j,null,2); }
+      else{ box.textContent="⚠️ Optimizer failed ("+r.status+"). Try again."; }
+    }catch(e){ box.textContent="❌ "+e.message; }
+  };
+
+  /* ---------- Live Console ---------- */
+  document.getElementById("btnSend").onclick=async()=>{
+    const ep=document.getElementById("ep").value, box=document.getElementById("respOut"), raw=document.getElementById("body").value.trim();
+    if(ep==="/healthz"){ // GET
+      const r=await fetch("/healthz"); const t=await r.text();
+      box.textContent="Health: "+t; return;
     }
+    if(!raw){ box.textContent="❌ Please type something"; return; }
+    const body=interpretInput(raw,ep);
+    box.textContent="📝 Interpreted request:\n"+JSON.stringify(body,null,2)+"\n\nSending…";
+    try{
+      const tok=await getToken();
+      const r=await fetch(ep,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+tok},body:JSON.stringify(body)});
+      const t=await r.text();
+      box.textContent="📝 Interpreted request:\n"+JSON.stringify(body,null,2)+"\n\n📡 API Response (status "+r.status+"):\n"+t;
+    }catch(e){ box.textContent="❌ "+e.message; }
+  };
+</script>
 
-    /* ---------- UI: Auth panel ---------- */
-    document.getElementById("btnLogin").addEventListener("click", async ()=>{
-      const u=document.getElementById("u").value, p=document.getElementById("p").value;
-      const box=document.getElementById("authOut");
-      box.textContent="Logging in…";
-      try{
-        const res=await login(u,p);
-        box.textContent = res.ok ? ("OK\n"+pretty(res.data)) : ("ERROR\n"+pretty(res.error));
-      }catch(e){ box.textContent="ERROR\n"+e.message }
-    });
-
-    /* ---------- Optimizer (JWT, robust errors) ---------- */
-    document.getElementById("btnOpt").addEventListener("click", async ()=>{
-      const out=document.getElementById("optOut");
-      out.textContent="Scanning device + contacting /optimize…";
-      const info={
-        userAgent:navigator.userAgent,
-        cores:navigator.hardwareConcurrency,
-        memory:navigator.deviceMemory || "unknown",
-        connection: navigator.connection ? (navigator.connection.downlink+" Mbps") : "unknown"
-      };
-      try{
-        let res = await apiFetch("/optimize", {
-          method:"POST", auth:true, body:JSON.stringify({data:info})
-        });
-        if(!res.ok && res.status===401){ JWT=null; // force re-login once
-          res = await apiFetch("/optimize",{ method:"POST", auth:true, body:JSON.stringify({data:info}) });
-        }
-        const body = res.json ?? res.text ?? "(no body)";
-        out.textContent = `Status: ${res.status}\n` + pretty(body);
-      }catch(e){
-        out.textContent = "ERROR\n"+e.message;
-      }
-    });
-
-    /* ---------- Live Console (JWT auto where needed) ---------- */
-    document.getElementById("btnSend").addEventListener("click", async ()=>{
-      const ep=document.getElementById("ep").value;
-      const bodyEl=document.getElementById("body");
-      const meta=document.getElementById("respMeta");
-      const out=document.getElementById("respOut");
-
-      const isGet = ep==="/healthz";
-      let body=null;
-      if(!isGet && bodyEl.value.trim()){
-        try{ JSON.parse(bodyEl.value) }catch{ out.textContent="ERROR\nPayload is not valid JSON."; return }
-        body=bodyEl.value;
-      }
-
-      const needsAuth = (ep==="/optimize" || ep==="/omni/command");
-      meta.textContent="Sending…"; out.textContent="";
-
-      try{
-        let res = await apiFetch(ep,{ method: isGet?"GET":"POST", body, auth: needsAuth });
-        if(!res.ok && res.status===401 && needsAuth){ JWT=null;
-          res = await apiFetch(ep,{ method: isGet?"GET":"POST", body, auth: true });
-        }
-        // Build headers dump
-        const hdrs = []; res.headers.forEach((v,k)=>hdrs.push(k+": "+v));
-        meta.textContent = `Status: ${res.status}\n`+hdrs.join("\n");
-        out.textContent = pretty(res.json ?? res.text ?? "(no body)");
-      }catch(e){
-        meta.textContent="ERROR"; out.textContent=e.message;
-      }
-    });
-  </script>
 </body>
 </html>
