@@ -4,381 +4,210 @@
   <meta charset="UTF-8" />
   <title>Malcolm AI Omni API — Infinity Engine VΩ</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Cache-bust meta -->
+  <meta name="version" content="v3-2025-09-11" />
   <style>
-    :root{
-      --bg:#000; --text:#fff; --neon:#00e6ff; --gold:#ffd700; --mint:#00ffcc;
-      --glass:rgba(255,255,255,.06); --glass-strong:rgba(255,255,255,.12); --border:#263238;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-    }
-    * { box-sizing: border-box }
-    body{
-      margin:0; background:var(--bg); color:var(--text);
-      font-family:"Segoe UI",system-ui,Arial,sans-serif; overflow-x:hidden;
-    }
-    /* Starfield + Logo watermark */
-    canvas#starfield{ position:fixed; inset:0; width:100%; height:100%; z-index:-2; }
-    body::before{
-      content:""; position:fixed; inset:0; z-index:-1; opacity:.08;
-      background:url("/static/709DE8CE-D220-43E9-BFAC-234245C1165C.png") no-repeat center/40%;
-    }
-
-    header, main, footer{ max-width:1100px; margin:auto; padding:1.25rem; }
-    header{ text-align:center; padding-top:2.25rem }
-    h1{
-      margin:.25rem 0 0; font-size:clamp(2rem,4vw,3rem); font-weight:700; color:var(--gold);
-      text-shadow:0 0 24px #ffcc00; animation:glow 3s ease-in-out infinite alternate;
-    }
-    @keyframes glow{ from{ text-shadow:0 0 10px #ffcc00 } to{ text-shadow:0 0 32px #ff9900 } }
-    p.lead{ opacity:.9; max-width:860px; margin:.75rem auto 0 }
-
-    /* Top nav pills */
-    .pillnav{ display:flex; gap:.6rem; justify-content:center; flex-wrap:wrap; margin:1rem auto 0 }
-    .pillnav a{
-      padding:.5rem .8rem; border:1px solid var(--border); border-radius:999px;
-      background:var(--glass); color:var(--mint); text-decoration:none; font-weight:600
-    }
-    .pillnav a:hover{ background:var(--glass-strong); box-shadow:0 0 12px rgba(0,230,255,.25) }
-
-    /* Sections / cards */
-    section{ margin:2rem 0 }
-    .card{
-      background:linear-gradient( to bottom right, rgba(0,0,0,.55), rgba(0,0,0,.35) );
-      border:1px solid var(--border); border-radius:16px; padding:1rem 1.1rem;
-      box-shadow:0 0 24px rgba(0,230,255,.08);
-      backdrop-filter: blur(8px);
-    }
-    h2{ margin:.25rem 0 1rem; color:var(--neon); text-shadow:0 0 10px var(--neon) }
-
-    /* Accordion docs */
-    .acc{ border:1px solid var(--border); border-radius:12px; overflow:hidden; margin:.75rem 0 }
-    .acc-h{ padding:.8rem 1rem; background:var(--glass); cursor:pointer; font-weight:700 }
-    .acc-h:hover{ background:var(--glass-strong) }
-    .acc-c{ display:none; padding:1rem; border-top:1px solid var(--border) }
-    .muted{ opacity:.8 }
-
-    /* Modes */
-    .grid{ display:grid; gap:1rem; grid-template-columns: repeat(auto-fill,minmax(220px,1fr)) }
-    .mode{
-      background:var(--glass); border:1px solid var(--border); border-radius:14px; padding:1rem;
-      text-align:center; cursor:pointer; transition:transform .25s, box-shadow .25s;
-    }
-    .mode:hover{ transform:translateY(-3px) scale(1.02); box-shadow:0 0 16px rgba(0,230,255,.25) }
-    .mode.active{ outline:1px solid var(--neon); box-shadow:0 0 18px rgba(0,230,255,.4) }
-    #mode-details{ margin-top:.8rem; font-size:.95rem; opacity:.95 }
-
-    /* Consoles */
-    .row{ display:grid; gap:1rem; grid-template-columns: 1fr 1fr }
-    @media (max-width:900px){ .row{ grid-template-columns:1fr } }
-    label{ display:block; font-weight:600; margin:.3rem 0 .25rem }
-    input, select, textarea{
-      width:100%; background:#0b0f12; color:var(--text); border:1px solid #263238;
-      padding:.55rem .65rem; border-radius:8px; font-family:var(--mono)
-    }
-    textarea{ min-height:140px }
-    button{
-      background:linear-gradient(90deg,#00e6ff,#00ffcc); color:#001013; font-weight:800;
-      border:none; padding:.65rem .9rem; border-radius:10px; cursor:pointer;
-      box-shadow:0 8px 24px rgba(0,230,255,.25); margin-top:.4rem
-    }
-    button:hover{ filter:brightness(1.08) }
-    .out{
-      background:#05090c; border:1px dashed #29434e; border-radius:10px; padding:.8rem; min-height:72px;
-      font-family:var(--mono); white-space:pre-wrap; overflow:auto
-    }
-
-    /* Stream feature */
-    .stream{ aspect-ratio:16/9; width:100%; border:none; border-radius:16px; box-shadow:0 0 24px rgba(255,215,0,.18) }
-
-    footer{ text-align:center; margin:2.5rem 0 3rem; opacity:.75 }
+    body { margin:0; font-family:"Segoe UI",Arial,sans-serif; background:#000; color:#fff; }
+    canvas#starfield{ position:fixed; inset:0; width:100%; height:100%; z-index:-2 }
+    body::before{ content:""; position:fixed; inset:0; background:url("/static/709DE8CE-D220-43E9-BFAC-234245C1165C.png") no-repeat center/40%; opacity:.08; z-index:-1 }
+    header,main,footer{ max-width:900px; margin:auto; padding:1rem }
+    h1{ color:#ffd700; text-align:center; text-shadow:0 0 16px #ffcc00 }
+    h2{ color:#00e6ff; margin-top:2rem; text-shadow:0 0 10px #00e6ff }
+    section{ margin-top:2rem; background:rgba(255,255,255,.05); padding:1rem; border-radius:12px }
+    pre{ background:#111; padding:.6rem; border-radius:8px; white-space:pre-wrap }
+    button{ background:#00e6ff; color:#000; padding:.6rem 1rem; border:none; border-radius:6px; cursor:pointer; margin:.5rem 0 }
+    button:hover{ background:#00b3cc }
+    textarea,input{ width:100%; padding:.5rem; margin-top:.3rem; border-radius:6px; border:1px solid #333; background:#111; color:#fff }
+    .out{ background:#000; border:1px dashed #333; padding:.8rem; margin-top:.5rem; min-height:60px; white-space:pre-wrap; font-family:monospace }
   </style>
 </head>
 <body>
   <canvas id="starfield"></canvas>
-
   <header>
     <h1>🚀 Malcolm AI Omni API — Infinity Engine VΩ</h1>
-    <p class="lead">
-      A living interface of **Sovereign Intelligence** for optimization, protection, and creation.  
-      Explore endpoints, invoke modes, stream the Hypercosmic Theatre, and operate the Optimizer — all here.
-    </p>
-    <nav class="pillnav">
-      <a href="#auth">Auth</a>
-      <a href="#docs">API Docs</a>
-      <a href="#modes">Modes</a>
-      <a href="#optimizer">Optimizer</a>
-      <a href="#console">Live Console</a>
-      <a href="#stream">Hypercosmic Theatre</a>
-    </nav>
+    <p style="text-align:center; opacity:.8">Welcome! This portal lets you <b>optimize</b> your system, <b>explore modes</b>, and <b>interact</b> with Malcolm AI. Speak naturally — no coding required.</p>
   </header>
 
-    <!-- INFINITY STREAM -->
-    <section id="infinity" class="card">
+  <main>
+    <!-- Getting Started -->
+    <section>
+      <h2>📖 Getting Started</h2>
+      <p>Think of this API as a dialogue with Malcolm AI. You can:</p>
+      <ul>
+        <li>Check system health (<code>/healthz</code>).</li>
+        <li>Optimize your device or environment (<code>/optimize</code>).</li>
+        <li>Engage <b>modes</b> like <i>Shield</i>, <i>Timeline</i>, or <i>Oracle</i> via <code>/omni/command</code>.</li>
+        <li>Watch the <b>Hypercosmic Theatre</b> live stream.</li>
+        <li>Tap into the live <b>Infinity Stream</b> feed.</li>
+      </ul>
+      <p><b>Tip:</b> You don’t need to format JSON — just type “Activate shield” or “Optimizar la memoria al 50%” and the system will translate it.</p>
+    </section>
+
+    <!-- Auth -->
+    <section>
+      <h2>🔑 Authentication</h2>
+      <p>Protected endpoints require a token. This portal auto-logins, but you can also log in manually:</p>
+      <input id="u" placeholder="admin" value="admin" />
+      <input id="p" type="password" placeholder="password" value="password" />
+      <button id="btnLogin">Get Token</button>
+      <div id="authOut" class="out">Awaiting login…</div>
+    </section>
+
+    <!-- Optimizer -->
+    <section>
+      <h2>🛠 Malcolm Optimizer</h2>
+      <p>Scans your system (CPU, RAM, connection) and suggests improvements. Try: “Optimize my CPU usage.”</p>
+      <button id="btnOpt">Run Optimizer</button>
+      <div id="optOut" class="out">Waiting…</div>
+    </section>
+
+    <!-- Live Console -->
+    <section>
+      <h2>⚡ Live API Console</h2>
+      <p>Send any instruction in natural language (or JSON if you prefer). Examples:</p>
+      <ul>
+        <li><i>“Activate shield now.”</i> → Omni Command</li>
+        <li><i>“Optimizar la memoria al 50%.”</i> → Optimizer</li>
+        <li><i>“Consulter l’oracle.”</i> → Oracle mode</li>
+      </ul>
+      <label>Choose endpoint:</label>
+      <select id="ep">
+        <option value="/healthz">Health check</option>
+        <option value="/optimize">Optimizer</option>
+        <option value="/omni/command">Omni Command</option>
+      </select>
+      <label>Your instruction or data (plain text or JSON)</label>
+      <textarea id="body" placeholder="e.g. Optimize memory to 50% OR { &quot;data&quot;: { &quot;cpu_percent&quot;: 90 } }"></textarea>
+      <button id="btnSend">Send</button>
+      <div id="respOut" class="out">–</div>
+    </section>
+
+    <!-- Modes -->
+    <section>
+      <h2>🌐 API Modes</h2>
+      <p>Modes expand Malcolm AI’s operational landscape. Engage them through <code>/omni/command</code>:</p>
+      <ul>
+        <li><b>Growth</b>: Unlock creativity, expansion.</li>
+        <li><b>DNA</b>: Access symbolic genetic archetypes.</li>
+        <li><b>Matter</b>: Reshape energy and perception of form.</li>
+        <li><b>Timeline</b>: Navigate past, present, future threads.</li>
+        <li><b>Entanglement</b>: Reveal hidden synchronicities.</li>
+        <li><b>Alchemy</b>: Transform inputs into symbolic gold.</li>
+        <li><b>Manifest</b>: Collapse probability into certainty.</li>
+        <li><b>Shield</b>: Activate multi-layered protection.</li>
+        <li><b>Oracle</b>: Channel archetypal intelligence.</li>
+      </ul>
+      <p><b>Example:</b> Type “Enter Alchemy mode” → sends <code>{"command":"alchemy"}</code>.</p>
+    </section>
+
+    <!-- Infinity Stream -->
+    <section id="infinity">
       <h2>♾️ Infinity Stream</h2>
-      <p class="muted">This live channel connects to <code>/infinity/stream</code> using Server-Sent Events (SSE), receiving a continuous feed from the Malcolm AI Infinity Engine.</p>
+      <p>A live feed from <code>/infinity/stream</code>. Displays real-time transmissions from Malcolm AI (requires backend support).</p>
       <div id="infOut" class="out" style="max-height:280px; overflow-y:auto">Connecting…</div>
     </section>
 
-
-  <main>
-    <!-- AUTH -->
-    <section id="auth" class="card">
-      <h2>🔑 Authentication</h2>
-      <p class="muted">This portal handles JWT automatically for protected endpoints. You can override credentials below if needed.</p>
-      <div class="row">
-        <div class="card" style="border-style:dashed">
-          <label>Username</label>
-          <input id="u" placeholder="admin" value="admin" />
-          <label>Password</label>
-          <input id="p" type="password" placeholder="password" value="password" />
-          <button id="btnLogin">Get Token</button>
-          <div id="authOut" class="out">Awaiting login…</div>
-        </div>
-        <div class="card" style="border-style:dashed">
-          <p><strong>How it works</strong></p>
-          <ul>
-            <li>Click <em>Get Token</em> to call <code>POST /login</code> and cache a JWT in memory.</li>
-            <li>Protected endpoints (e.g. <code>/optimize</code>, <code>/omni/command</code>) include <code>Authorization: Bearer …</code> automatically.</li>
-            <li>If your server denies a request with <code>401</code>, the portal will attempt one automatic re-login (then show the error).</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- DOCS -->
-    <section id="docs" class="card">
-      <h2>📡 API Endpoints</h2>
-
-      <div class="acc">
-        <div class="acc-h">GET /healthz</div>
-        <div class="acc-c">Returns <code>{"status":"ok"}</code>. Useful for uptime checks and Fly.io health probes.</div>
-      </div>
-
-      <div class="acc">
-        <div class="acc-h">POST /login</div>
-        <div class="acc-c">
-          Exchange credentials for a JWT.<br/><br/>
-          <strong>Request</strong>
-          <pre>{"username":"admin","password":"password"}</pre>
-          <strong>Response</strong>
-          <pre>{"access_token":"&lt;JWT&gt;"}</pre>
-        </div>
-      </div>
-
-      <div class="acc">
-        <div class="acc-h">POST /optimize (protected)</div>
-        <div class="acc-c">
-          Send system/browser metrics and receive action recommendations.<br/><br/>
-          <strong>Request</strong>
-          <pre>{
-  "data":{
-    "cpu_percent": 72,
-    "memory": {"percent": 41},
-    "disk": {"percent": 60}
-  }
-}</pre>
-          <strong>Response</strong>
-          <pre>{ "actions": [ {"type":"clear_cache"}, {"type":"cleanup_tmp"} ] }</pre>
-        </div>
-      </div>
-
-      <div class="acc">
-        <div class="acc-h">POST /omni/command (protected)</div>
-        <div class="acc-c">
-          Send higher-level commands into the Omni engine.<br/><br/>
-          <strong>Request</strong>
-          <pre>{"command":"shield:activate"}</pre>
-          <strong>Response</strong>
-          <pre>{"received_command":"shield:activate","status":"executed"}</pre>
-        </div>
-      </div>
-
-      <div class="acc">
-        <div class="acc-h">WS /ws/{client_id}</div>
-        <div class="acc-c">
-          Real-time channel for messages. Connect with a WebSocket client to exchange messages tagged by <code>client_id</code>.
-        </div>
-      </div>
-    </section>
-
-    <!-- MODES -->
-    <section id="modes" class="card">
-      <h2>🌐 Modes Explorer</h2>
-      <div class="grid" id="modeGrid">
-        <div class="mode" data-name="growth" data-info="Expand awareness and creativity.">Growth</div>
-        <div class="mode" data-name="dna" data-info="Explore symbolic genetic archetypes.">DNA</div>
-        <div class="mode" data-name="matter" data-info="Reshape perception of physical/energetic form.">Matter</div>
-        <div class="mode" data-name="timeline" data-info="Navigate threads of past, present, and future.">Timeline</div>
-        <div class="mode" data-name="entanglement" data-info="Illuminate hidden synchronicities.">Entanglement</div>
-        <div class="mode" data-name="alchemy" data-info="Transform inputs into symbolic gold.">Alchemy</div>
-        <div class="mode" data-name="manifest" data-info="Project intent into form; collapse probability.">Manifest</div>
-        <div class="mode" data-name="shield" data-info="Activate protection layers.">Shield</div>
-        <div class="mode" data-name="oracle" data-info="Channel archetypal intelligence.">Oracle</div>
-      </div>
-      <div id="mode-details" class="muted">Select a mode to reveal its essence.</div>
-    </section>
-
-    <!-- OPTIMIZER -->
-    <section id="optimizer" class="card">
-      <h2>🛠 Malcolm Optimizer</h2>
-      <div class="row">
-        <div class="card" style="border-style:dashed">
-          <p class="muted">Runs a browser/device scan and submits it to <code>/optimize</code>.</p>
-          <button id="btnOpt">Run Optimizer</button>
-          <div id="optOut" class="out">Waiting…</div>
-        </div>
-        <div class="card" style="border-style:dashed">
-          <p><strong>What it sends</strong> (example)</p>
-          <pre>{
-  "data":{
-    "userAgent":"<browser UA>",
-    "cores": 8,
-    "memory": 16,
-    "connection": "200 Mbps"
-  }
-}</pre>
-          <p class="muted">Server replies with <code>{"actions":[...]}</code>. This portal shows raw JSON for clarity.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- LIVE CONSOLE -->
-    <section id="console" class="card">
-      <h2>⚡ Live API Console</h2>
-      <div class="row">
-        <div class="card" style="border-style:dashed">
-          <label>Endpoint</label>
-          <select id="ep">
-            <option value="/healthz">GET /healthz</option>
-            <option value="/login">POST /login</option>
-            <option value="/optimize" data-protected="1">POST /optimize</option>
-            <option value="/omni/command" data-protected="1">POST /omni/command</option>
-          </select>
-
-          <label>Payload (JSON)</label>
-          <textarea id="body" placeholder='{"data":{"cpu_percent":90}}'></textarea>
-
-          <button id="btnSend">Send</button>
-        </div>
-        <div class="card" style="border-style:dashed">
-          <div class="muted"><strong>Response</strong> (status, headers, body)</div>
-          <div id="respMeta" class="out" style="margin:.4rem 0">–</div>
-          <div id="respOut" class="out">–</div>
-        </div>
-      </div>
-      <p class="muted">Tips: <em>/healthz</em> is open; <em>/optimize</em> & <em>/omni/command</em> require JWT (auto-injected). Use the Auth panel to change credentials.</p>
-    </section>
-
-    <!-- STREAM -->
-    <section id="stream" class="card">
+    <!-- Hypercosmic Theatre -->
+    <section>
       <h2>🎬 Hypercosmic Theatre Channel</h2>
-      <p class="muted">A perpetual beacon. Watch the stream here, or open <a href="/hypercosmic" target="_blank">/hypercosmic</a> in a new tab.</p>
-      <iframe class="stream"
-        src="https://www.youtube.com/embed/NOtYFwxtflk?autoplay=0&rel=0&modestbranding=1"
-        title="Hypercosmic Theatre Channel"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        allowfullscreen></iframe>
+      <p>Experience the cosmic stream live:</p>
+      <iframe width="100%" height="315" src="https://www.youtube.com/embed/NOtYFwxtflk?rel=0" frameborder="0" allowfullscreen></iframe>
     </section>
   </main>
 
   <footer>
-    Malcolm AI Omni API — Infinity Engine VΩ • Secure • Adaptive • Real-Time
+    <p style="text-align:center; opacity:.7">Malcolm AI Omni API • Infinity Engine VΩ • Explore • Optimize • Protect</p>
   </footer>
 
-  <!-- Scripts -->
   <script>
-  /* ---------- Starfield ---------- */
-  const cvs=document.getElementById("starfield"),ctx=cvs.getContext("2d");let stars=[];
-  function size(){cvs.width=innerWidth;cvs.height=innerHeight;stars=Array.from({length:120},()=>({x:Math.random()*cvs.width,y:Math.random()*cvs.height,z:Math.random()*cvs.width}))}
-  function draw(){ctx.fillStyle="#000";ctx.fillRect(0,0,cvs.width,cvs.height);for(const s of stars){s.z-=2;if(s.z<=0)s.z=cvs.width;const k=128/s.z,x=s.x*k+cvs.width/2,y=s.y*k+cvs.height/2;if(x>=0&&x<cvs.width&&y>=0&&y<cvs.height){const w=(1-s.z/cvs.width)*2;ctx.fillStyle="#fff";ctx.fillRect(x,y,w,w)}}requestAnimationFrame(draw)}window.onresize=size;size();draw();
+    /* ---------- Starfield ---------- */
+    const cvs=document.getElementById("starfield"),ctx=cvs.getContext("2d");let stars=[];
+    function size(){cvs.width=innerWidth;cvs.height=innerHeight;stars=Array.from({length:120},()=>({x:Math.random()*cvs.width,y:Math.random()*cvs.height,z:Math.random()*cvs.width}))}
+    function draw(){ctx.fillStyle="#000";ctx.fillRect(0,0,cvs.width,cvs.height);for(const s of stars){s.z-=2;if(s.z<=0)s.z=cvs.width;const k=128/s.z,x=s.x*k+cvs.width/2,y=s.y*k+cvs.height/2;if(x>=0&&x<cvs.width&&y>=0&&y<cvs.height){const w=(1-s.z/cvs.width)*2;ctx.fillStyle="#fff";ctx.fillRect(x,y,w,w)}}requestAnimationFrame(draw)}window.onresize=size;size();draw();
 
-  /* ---------- Auth / Token ---------- */
-  let JWT=null;
-  async function login(username, password){
-    const r=await fetch("/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username,password})});
-    const j=await r.json().catch(()=>null);
-    if(r.ok && j && j.access_token){ JWT=j.access_token; return {ok:true,data:j}; }
-    return {ok:false,error:j||{status:r.status,text:await r.text()}};
-  }
-  async function getToken(){
-    if(JWT) return JWT;
-    const u=document.getElementById("u")?.value||"admin";
-    const p=document.getElementById("p")?.value||"password";
-    const res=await login(u,p);
-    if(!res.ok) throw new Error("Auth failed");
-    return JWT;
-  }
-  document.getElementById("btnLogin").addEventListener("click", async ()=>{
-    const u=document.getElementById("u").value, p=document.getElementById("p").value, box=document.getElementById("authOut");
-    box.textContent="Logging in…";
-    try{
-      const res=await login(u,p);
-      box.textContent=res.ok?("✅ "+JSON.stringify(res.data,null,2)):("❌ "+JSON.stringify(res.error,null,2));
-    }catch(e){ box.textContent="❌ "+e.message; }
-  });
-
-  /* ---------- Multilingual Adaptive Interpreter ---------- */
-  function interpretInput(raw, endpoint){
-    const text=raw.toLowerCase();
-    let body={};
-    const numMatch=text.match(/\d+/g);
-    const synonyms={
-      cpu:["cpu","procesador","processeur"],
-      memory:["memory","memoria","mémoire","ram"],
-      disk:["disk","disco","disque"],
-      shield:["shield","proteger","bouclier"],
-      timeline:["timeline","tiempo","chronologie"],
-      oracle:["oracle","vidente","prophète"],
-      optimize:["optimize","optimizar","optimiser"]
-    };
-    if(endpoint==="/optimize"){
-      body.data={};
-      if(synonyms.cpu.some(w=>text.includes(w))) body.data.cpu_percent=numMatch?parseInt(numMatch[0]):80;
-      if(synonyms.memory.some(w=>text.includes(w))) body.data.memory={percent:numMatch?parseInt(numMatch[0]):70};
-      if(synonyms.disk.some(w=>text.includes(w))) body.data.disk={percent:numMatch?parseInt(numMatch[0]):65};
-      if(Object.keys(body.data).length===0){ body.data={note:"generic optimization requested"}; }
-    }
-    else if(endpoint==="/omni/command"){
-      if(synonyms.shield.some(w=>text.includes(w))) body.command="shield:activate";
-      else if(synonyms.timeline.some(w=>text.includes(w))) body.command="timeline:navigate";
-      else if(synonyms.oracle.some(w=>text.includes(w))) body.command="oracle:consult";
-      else body.command=raw;
-    }
-    else { body.input=raw; }
-    return body;
-  }
-
-  /* ---------- Optimizer ---------- */
-  document.getElementById("btnOpt").onclick=async()=>{
-    const box=document.getElementById("optOut");
-    box.textContent="Running scan…";
-    const info={userAgent:navigator.userAgent,cores:navigator.hardwareConcurrency,memory:navigator.deviceMemory||"unknown"};
-    try{
-      const tok=await getToken();
-      const r=await fetch("/optimize",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+tok},body:JSON.stringify({data:info})});
+    /* ---------- Auth / Token ---------- */
+    let JWT=null;
+    async function login(username,password){
+      const r=await fetch("/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username,password})});
       const j=await r.json().catch(()=>null);
-      if(r.ok && j){ box.textContent="✅ Suggestions:\n"+JSON.stringify(j,null,2); }
-      else{ box.textContent="⚠️ Optimizer failed ("+r.status+"). Try again."; }
-    }catch(e){ box.textContent="❌ "+e.message; }
-  };
-
-  /* ---------- Live Console ---------- */
-  document.getElementById("btnSend").onclick=async()=>{
-    const ep=document.getElementById("ep").value, box=document.getElementById("respOut"), raw=document.getElementById("body").value.trim();
-    if(ep==="/healthz"){ // GET
-      const r=await fetch("/healthz"); const t=await r.text();
-      box.textContent="Health: "+t; return;
+      if(r.ok && j && j.access_token){ JWT=j.access_token; return {ok:true,data:j}; }
+      return {ok:false,error:j||{status:r.status,text:await r.text()}};
     }
-    if(!raw){ box.textContent="❌ Please type something"; return; }
-    const body=interpretInput(raw,ep);
-    box.textContent="📝 Interpreted request:\n"+JSON.stringify(body,null,2)+"\n\nSending…";
-    try{
-      const tok=await getToken();
-      const r=await fetch(ep,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+tok},body:JSON.stringify(body)});
-      const t=await r.text();
-      box.textContent="📝 Interpreted request:\n"+JSON.stringify(body,null,2)+"\n\n📡 API Response (status "+r.status+"):\n"+t;
-    }catch(e){ box.textContent="❌ "+e.message; }
-  };
-</script>
+    async function getToken(){
+      if(JWT) return JWT;
+      const u=document.getElementById("u")?.value||"admin";
+      const p=document.getElementById("p")?.value||"password";
+      const res=await login(u,p);
+      if(!res.ok) throw new Error("Auth failed");
+      return JWT;
+    }
+    document.getElementById("btnLogin").addEventListener("click", async ()=>{
+      const u=document.getElementById("u").value, p=document.getElementById("p").value, box=document.getElementById("authOut");
+      box.textContent="Logging in…";
+      try{ const res=await login(u,p); box.textContent=res.ok?("✅ "+JSON.stringify(res.data,null,2)):("❌ "+JSON.stringify(res.error,null,2)); }
+      catch(e){ box.textContent="❌ "+e.message; }
+    });
 
+    /* ---------- Interpreter ---------- */
+    function interpretInput(raw,endpoint){
+      const text=raw.toLowerCase();
+      let body={}; const numMatch=text.match(/\d+/g);
+      const synonyms={cpu:["cpu","procesador","processeur"],memory:["memory","memoria","mémoire","ram"],disk:["disk","disco","disque"],shield:["shield","proteger","bouclier"],timeline:["timeline","tiempo","chronologie"],oracle:["oracle","vidente","prophète"],optimize:["optimize","optimizar","optimiser"]};
+      if(endpoint==="/optimize"){ body.data={};
+        if(synonyms.cpu.some(w=>text.includes(w))) body.data.cpu_percent=numMatch?parseInt(numMatch[0]):80;
+        if(synonyms.memory.some(w=>text.includes(w))) body.data.memory={percent:numMatch?parseInt(numMatch[0]):70};
+        if(synonyms.disk.some(w=>text.includes(w))) body.data.disk={percent:numMatch?parseInt(numMatch[0]):65};
+        if(Object.keys(body.data).length===0){ body.data={note:"generic optimization requested"}; }
+      }
+      else if(endpoint==="/omni/command"){
+        if(synonyms.shield.some(w=>text.includes(w))) body.command="shield:activate";
+        else if(synonyms.timeline.some(w=>text.includes(w))) body.command="timeline:navigate";
+        else if(synonyms.oracle.some(w=>text.includes(w))) body.command="oracle:consult";
+        else body.command=raw;
+      }
+      else { body.input=raw; }
+      return body;
+    }
+
+    /* ---------- Optimizer ---------- */
+    document.getElementById("btnOpt").onclick=async()=>{
+      const box=document.getElementById("optOut");
+      box.textContent="Running scan…";
+      const info={userAgent:navigator.userAgent,cores:navigator.hardwareConcurrency,memory:navigator.deviceMemory||"unknown"};
+      try{
+        const tok=await getToken();
+        const r=await fetch("/optimize",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+tok},body:JSON.stringify({data:info})});
+        const j=await r.json().catch(()=>null);
+        if(r.ok && j){ box.textContent="✅ Suggestions:\n"+JSON.stringify(j,null,2); }
+        else{ box.textContent="⚠️ Optimizer failed ("+r.status+"). Try again."; }
+      }catch(e){ box.textContent="❌ "+e.message; }
+    };
+
+    /* ---------- Live Console ---------- */
+    document.getElementById("btnSend").onclick=async()=>{
+      const ep=document.getElementById("ep").value, box=document.getElementById("respOut"), raw=document.getElementById("body").value.trim();
+      if(ep==="/healthz"){ const r=await fetch("/healthz"); box.textContent="Health: "+await r.text(); return; }
+      if(!raw){ box.textContent="❌ Please type something"; return; }
+      const body=interpretInput(raw,ep);
+      box.textContent="📝 Interpreted request:\n"+JSON.stringify(body,null,2)+"\n\nSending…";
+      try{
+        const tok=await getToken();
+        const r=await fetch(ep,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+tok},body:JSON.stringify(body)});
+        const t=await r.text();
+        box.textContent="📝 Interpreted request:\n"+JSON.stringify(body,null,2)+"\n\n📡 API Response (status "+r.status+"):\n"+t;
+      }catch(e){ box.textContent="❌ "+e.message; }
+    };
+
+    /* ---------- Infinity Stream ---------- */
+    (function startInfinity(){
+      const box=document.getElementById("infOut");
+      try{
+        const es=new EventSource("/infinity/stream");
+        es.onopen=()=>{ box.textContent="🔗 Connected to Infinity Stream…"; };
+        es.onmessage=(ev)=>{ box.textContent+="\n"+ev.data; box.scrollTop=box.scrollHeight; };
+        es.onerror=()=>{ box.textContent+="\n[Error: stream interrupted]"; };
+      }catch(e){ box.textContent="❌ "+e.message; }
+    })();
+  </script>
 </body>
 </html>
