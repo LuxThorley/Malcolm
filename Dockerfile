@@ -1,29 +1,28 @@
-# Use official lightweight Python image
-FROM python:3.10-slim
+# Use a slim Python base
+FROM python:3.11-slim
 
-# Set working directory
+# Prevent Python from buffering stdout/stderr
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# Set workdir
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
+# System deps (optional but useful)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential curl && \
+    rm -rf /var/lib/apt/lists/*
 
-# Copy dependency list
-COPY requirements.txt .
-
-# Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy and install deps first (leverages Docker layer cache)
+COPY requirements.txt ./requirements.txt
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt
 
 # Copy app code
 COPY . .
 
-# Expose port (Fly.io maps to $PORT automatically)
+# Expose Fly internal port
 EXPOSE 8080
 
-# Environment variable for Flask
-ENV PORT=8080
-
-# Start the app with Gunicorn + Eventlet
-CMD ["uvicorn", "malcolmai_api:app", "--host", "0.0.0.0", "--port", "8080"]
-
+# Start FastAPI (main:main_app) on 0.0.0.0:8080 — JSON exec form is important
+CMD ["uvicorn", "main:main_app", "--host", "0.0.0.0", "--port", "8080"]
