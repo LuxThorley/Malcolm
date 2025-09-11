@@ -92,6 +92,9 @@ SUPPORTED_MODES = (
 # App + Extensions
 # =============================================================
 
+
+
+
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET", os.urandom(32).hex())
 
@@ -101,6 +104,7 @@ limiter = Limiter(get_remote_address, app=app, default_limits=["200 per hour", "
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger("malcolm.omni")
+
 
 # =============================================================
 # Models
