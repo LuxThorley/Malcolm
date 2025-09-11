@@ -26,6 +26,19 @@ async def start_daemon():
     daemon_path = os.path.join(os.path.dirname(__file__), "malcolmai_daemon.py")
     subprocess.Popen([sys.executable, daemon_path])
 
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import os
+
+# Serve static files
+static_dir = os.path.join(os.path.dirname(__file__), "static")
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
+@app.get("/")
+async def landing_page():
+    return FileResponse(os.path.join(static_dir, "index.html"))
+
+
 @app.get("/")
 async def root():
     return {"status": "Malcolm AI API is live", "endpoints": ["/optimize", "/login", "/omni/command", "/ws/{client_id}"]}

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Malcolm AI API</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; background: #0f0f0f; color: #f0f0f0; }
+    h1 { color: #00d9ff; }
+    a { color: #00ff88; text-decoration: none; }
+    .endpoint { margin: 15px 0; }
+    .endpoint code { background: #222; padding: 4px 8px; border-radius: 5px; }
+  </style>
+</head>
+<body>
+  <h1>🚀 Malcolm AI API is Live</h1>
+  <p>Welcome to the Malcolm AI API service, running with FastAPI + Daemon integration.</p>
+  <h2>Available Endpoints</h2>
+  <div class="endpoint">
+    <strong>Health check:</strong> <code>GET /healthz</code><br>
+    Returns <code>{"status":"ok"}</code> to confirm the system is healthy.
+  </div>
+  <div class="endpoint">
+    <strong>Optimizer:</strong> <code>POST /optimize</code><br>
+    Submit system metrics, receive optimization actions.
+  </div>
+  <div class="endpoint">
+    <strong>Login:</strong> <code>POST /login</code><br>
+    Authenticate and receive a JWT token.
+  </div>
+  <div class="endpoint">
+    <strong>Omni Command:</strong> <code>POST /omni/command</code><br>
+    Execute higher-level Malcolm AI instructions.
+  </div>
+  <div class="endpoint">
+    <strong>WebSocket:</strong> <code>GET /ws/{client_id}</code><br>
+    Real-time messaging channel for connected clients.
+  </div>
+  <footer>
+    <p>🛡️ Protected & powered by Malcolm AI — infinite optimization and security.</p>
+  </footer>
+</body>
+</html>
