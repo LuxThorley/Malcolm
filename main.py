@@ -88,7 +88,7 @@ async def hypercosmic_theatre():
     </head>
     <body>
       <iframe width="100%" height="100%"
-        src="rtmp://a.rtmp.youtube.com/live2"
+        src="https://youtube.com/live/OEjBaz7eaxQ"
         title="Hypercosmic Theatre Network"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         allowfullscreen>
