@@ -58,6 +58,44 @@ async def infinity_stream():
         headers=headers,
     )
 
+# ------------------------
+# Hypercosmic Theatre Network (HTN)
+# ------------------------
+from fastapi.responses import HTMLResponse
+
+@main_app.get("/htn", response_class=HTMLResponse)
+async def hypercosmic_theatre():
+    """Serve the Hypercosmic Theatre Network livestream page"""
+    return """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <title>Hypercosmic Theatre Network</title>
+      <style>
+        body {
+          margin: 0;
+          background-color: black;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+        }
+        iframe {
+          border: none;
+        }
+      </style>
+    </head>
+    <body>
+      <iframe width="100%" height="100%"
+        src="https://www.youtube.com/embed/NOtYFwxtflk?autoplay=1"
+        title="Hypercosmic Theatre Network"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen>
+      </iframe>
+    </body>
+    </html>
+    """
 
 # ------------------------------------------------------------------------------
 # Favicon handler (prevents console 404 if you don't ship a real favicon)
