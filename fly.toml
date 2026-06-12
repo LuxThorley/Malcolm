@@ -1,5 +1,7 @@
-# fly.toml file for Malcolm AI Omni API
-# Multi-region deployment: London, Newark, Singapore (3 shared machines)
+# fly.toml app configuration file generated for malcolm-ai on 2026-06-12T02:50:41Z
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
 
 app = "malcolm-ai"
 primary_region = "lhr"
@@ -30,7 +32,7 @@ primary_region = "lhr"
   auto_rollback = true
 
 [processes]
-  app = ""
+  app = ''
 
 [vm]
   size = "shared-cpu-1x"
@@ -39,6 +41,7 @@ primary_region = "lhr"
   count = 3
 
 [checks]
+
   [checks.health]
     type = "http"
     port = 8080          # ✅ Explicit port for health check
@@ -47,8 +50,18 @@ primary_region = "lhr"
     timeout = "2s"
     grace_period = "30s"
 
-
 [regions]
   lhr = 1
   ewr = 1
   sin = 1
+
+[[vm]]
+  size = 'shared-cpu-1x'
+
+[[vm]]
+  size = 'performance-cpu-1x'
+  cpu_kind = 'performance'
+  cpus = 1
+  memory = '2gb'
+  memory_mb = 2048
+  processes = ['app']
