@@ -10,17 +10,25 @@ This repository contains the full Malcolm AI stack:
 
 | Component | File(s) | Description |
 |---|---|---|
-| Web Portal (frontend) | `index.html`, `static/` | The Malcolm AI Omni API portal, served via GitHub Pages at [malcolmai.live](https://malcolmai.live) |
-| Core API (backend) | `malcolmai_api.py` | FastAPI app: `/login` (JWT auth), `/optimize`, `/omni/command`, `/healthz`, WebSockets |
-| Main entrypoint | `main.py` | Wraps the core API, adds the `/infinity/stream` SSE feed and `/htn` Hypercosmic Theatre page |
-| Daemon | `malcolmai_daemon.py` | Background system-monitoring daemon, auto-started with the API |
-| Deployment | `Dockerfile`, `Procfile`, `runtime.txt` | Container / PaaS deployment configs for the backend |
+| **Full-Stack Worker (production)** | `worker/` | Cloudflare Worker `malcolmai-live` serving both the portal frontend and the complete API natively at [malcolmai.live](https://malcolmai.live) |
+| CI/CD | `.github/workflows/deploy-worker.yml` | Auto-deploys the Worker to Cloudflare on every push to `main` |
+| Web Portal (static fallback) | `index.html`, `static/` | GitHub Pages copy of the portal |
+| Core API (Python original) | `malcolmai_api.py`, `main.py` | Original FastAPI implementation: `/login` (JWT), `/optimize`, `/omni/command`, `/healthz`, `/infinity/stream`, WebSockets |
+| Daemon | `malcolmai_daemon.py` | Background system-monitoring daemon for self-hosted deployments |
+| Deployment (Python) | `Dockerfile`, `Procfile`, `runtime.txt` | Container / PaaS configs for the FastAPI backend |
 
-## Frontend (GitHub Pages)
+## Production: Full-Stack Cloudflare Worker
 
-The portal at the repository root (`index.html`) is deployed automatically by GitHub Pages from the `main` branch, with the custom domain `malcolmai.live` (see `CNAME`).
+The production site at **https://malcolmai.live** runs entirely on the Cloudflare Worker in `worker/` — frontend and backend on the same origin with zero manual configuration. The Worker ports every FastAPI endpoint to the Cloudflare edge (JWT auth via WebCrypto HS256, optimizer, Omni commands, mode lattice, SSE Infinity Stream, WebSockets).
 
-GitHub Pages is static hosting, so the portal runs in **static mode** by default and can connect to any live deployment of the Malcolm backend via the *API Backend* section on the page (the base URL is remembered in the browser).
+Deploy manually:
+
+```bash
+cd worker
+npx wrangler deploy   # requires CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID
+```
+
+Or push to `main` — the GitHub Actions workflow deploys automatically (set the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets).
 
 ## Backend (FastAPI)
 

@@ -1,0 +1,13 @@
+name = "malcolmai-live"
+main = "worker.js"
+compatibility_date = "2026-06-01"
+
+workers_dev = true
+
+routes = [
+  { pattern = "malcolmai.live", custom_domain = true },
+  { pattern = "www.malcolmai.live", custom_domain = true }
+]
+
+[vars]
+MALCOLM_VERSION = "Ω.1.0-cloudflare"
