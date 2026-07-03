@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+malcolmai_env/
+venv/
+env/
+
+# Logs
+*.log
+
+# Env / secrets
+.env
+
+# OS
+.DS_Store
+Thumbs.db
