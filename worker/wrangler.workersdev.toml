@@ -1,0 +1,19 @@
+# Free workers.dev deploy for malcolmai-live.
+# Use this file. Do not use wrangler.toml for this deploy:
+# that file also binds malcolmai.live / www.malcolmai.live as custom domains,
+# and Wrangler fails the whole publish if those zones are not on this account.
+#
+# Result: https://malcolmai-live.<your-subdomain>.workers.dev
+
+name = "malcolmai-live"
+main = "worker.js"
+compatibility_date = "2026-06-01"
+
+workers_dev = true
+preview_urls = true
+
+# Paste your 32-character account id to skip the account prompt:
+# account_id = ""
+
+[vars]
+MALCOLM_VERSION = "Ω.1.1-eternal"
