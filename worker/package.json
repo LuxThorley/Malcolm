@@ -3,12 +3,15 @@
   "version": "1.0.0",
   "main": "worker.js",
   "scripts": {
+    "dev": "wrangler dev --config wrangler.workersdev.toml",
+    "deploy:dev": "wrangler deploy --config wrangler.workersdev.toml",
+    "whoami": "wrangler whoami",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "Malcolm AI Omni API Worker — Infinity Engine Ω.1.1-eternal",
   "devDependencies": {
     "wrangler": "^4.106.0"
   }
