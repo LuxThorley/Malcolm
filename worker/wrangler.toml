@@ -10,4 +10,4 @@ routes = [
 ]
 
 [vars]
-MALCOLM_VERSION = "Ω.1.0-cloudflare"
+MALCOLM_VERSION = "Ω.1.1-eternal"
