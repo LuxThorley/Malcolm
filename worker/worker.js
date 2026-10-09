@@ -2,7 +2,7 @@
  * Malcolm AI Omni API — Infinity Engine VΩ
  * Full-stack Cloudflare Worker (malcolmai-live)
  *
- * Ω.1.2-ultimate — admin access token is infinite.
+ * Ω.1.3-plugin — eternal admin JWT plus MALCOLM_INFINITY_API_TOKEN Bearer for the Malcolm Omni Lattice plugin.
  * Consolidates the Ω.1.1-eternal module with the Cloudflare assistant draft.
  * The assistant set exp: Infinity. JSON cannot represent Infinity, so that
  * claim is omitted. A missing exp is the eternal seal. Portal stays imported
@@ -36,7 +36,7 @@ const DEFAULTS = {
   TOKEN_TTL_SECONDS: 3600,
   ADMIN_USER: "admin",
   ADMIN_PASS: "password",
-  VERSION: "\u03A9.1.2-ultimate",
+  VERSION: "\u03A9.1.3-plugin",
   ISSUER: "malcolmai.live",
   AUDIENCE: "malcolm-omni-api",
 };
@@ -127,10 +127,27 @@ async function verifyToken(token, secret) {
   return payload;
 }
 
-async function requireAuth(request, secret) {
+function bearer(request) {
   const auth = request.headers.get("Authorization") || "";
-  if (!auth.startsWith("Bearer ")) return null;
-  return verifyToken(auth.slice(7).trim(), secret);
+  if (!auth.startsWith("Bearer ")) return "";
+  return auth.slice(7).trim();
+}
+
+async function requireAuth(request, secret, env) {
+  const token = bearer(request);
+  if (!token) return null;
+  const pluginKey = env && env.MALCOLM_INFINITY_API_TOKEN;
+  if (pluginKey && safeEqual(token, pluginKey)) {
+    return {
+      sub: "malcolm-omni-lattice",
+      role: "plugin",
+      token_use: "infinity-api",
+      eternal: true,
+      iss: DEFAULTS.ISSUER,
+      aud: DEFAULTS.AUDIENCE,
+    };
+  }
+  return verifyToken(token, secret);
 }
 
 function safeEqual(a, b) {
@@ -291,6 +308,133 @@ function handleWebSocket(request, clientId) {
   return new Response(null, { status: 101, webSocket: client });
 }
 
+
+function pluginManifest(origin) {
+  return {
+    schema_version: "v1",
+    name_for_human: "Malcolm Omni Lattice",
+    name_for_model: "malcolm_omni_lattice",
+    description_for_human: "Malcolm AI Omni API — Infinity Engine. Optimize, command the lattice, and read live mode status.",
+    description_for_model: "Call the Malcolm Omni Lattice API. Send Authorization: Bearer with the MALCOLM_INFINITY_API_TOKEN. Use POST /omni/command for lattice commands, POST /optimize for system suggestions, GET /modes/status for the mode lattice, GET /healthz for the seal. Do not invent endpoints.",
+    auth: { type: "service_http", authorization_type: "bearer" },
+    api: { type: "openapi", url: origin + "/openapi.yaml" },
+    logo_url: origin + "/static/logo.png",
+    contact_email: "oliverluxthorley@gmail.com",
+    legal_info_url: origin + "/",
+  };
+}
+
+function openApi(origin) {
+  return {
+    openapi: "3.1.0",
+    info: {
+      title: "Malcolm Omni Lattice",
+      version: "Ω.1.3-plugin",
+      description: "Authenticated Malcolm Infinity API. Bearer token is MALCOLM_INFINITY_API_TOKEN.",
+    },
+    servers: [{ url: origin }],
+    components: {
+      securitySchemes: {
+        infinityBearer: { type: "http", scheme: "bearer" },
+      },
+    },
+    security: [{ infinityBearer: [] }],
+    paths: {
+      "/healthz": { get: { operationId: "healthz", summary: "Edge health and plugin seal", responses: { "200": { description: "Health" } } } },
+      "/modes/status": { get: { operationId: "modesStatus", summary: "Omni-Lattice mode status", responses: { "200": { description: "Modes" } } } },
+      "/omni/command": {
+        post: {
+          operationId: "omniCommand",
+          summary: "Execute an Omni-Lattice command",
+          requestBody: { required: true, content: { "application/json": { schema: { type: "object", properties: { command: { type: "string" } }, required: ["command"] } } } },
+          responses: { "200": { description: "Executed" }, "401": { description: "Bearer rejected" } },
+        },
+      },
+      "/optimize": {
+        post: {
+          operationId: "optimize",
+          summary: "Suggest optimisation actions from metrics",
+          requestBody: { required: false, content: { "application/json": { schema: { type: "object", properties: { data: { type: "object" } } } } } },
+          responses: { "200": { description: "Suggestions" }, "401": { description: "Bearer rejected" } },
+        },
+      },
+      "/auth/inspect": { get: { operationId: "inspectAuth", summary: "Confirm the Bearer seal", responses: { "200": { description: "Identity" }, "401": { description: "Bearer rejected" } } } },
+    },
+  };
+}
+
+function openApiYaml(origin) {
+  const spec = openApi(origin);
+  return [
+    "openapi: 3.1.0",
+    "info:",
+    "  title: Malcolm Omni Lattice",
+    "  version: Ω.1.3-plugin",
+    "  description: Authenticated Malcolm Infinity API. Bearer token is the Worker secret MALCOLM_INFINITY_API_TOKEN.",
+    "servers:",
+    "  - url: " + origin,
+    "components:",
+    "  securitySchemes:",
+    "    infinityBearer:",
+    "      type: http",
+    "      scheme: bearer",
+    "security:",
+    "  - infinityBearer: []",
+    "paths:",
+    "  /healthz:",
+    "    get:",
+    "      operationId: healthz",
+    "      summary: Edge health and plugin seal",
+    "      responses:",
+    "        \"200\": { description: Health }",
+    "  /modes/status:",
+    "    get:",
+    "      operationId: modesStatus",
+    "      summary: Omni-Lattice mode status",
+    "      responses:",
+    "        \"200\": { description: Modes }",
+    "  /omni/command:",
+    "    post:",
+    "      operationId: omniCommand",
+    "      summary: Execute an Omni-Lattice command",
+    "      requestBody:",
+    "        required: true",
+    "        content:",
+    "          application/json:",
+    "            schema:",
+    "              type: object",
+    "              required: [command]",
+    "              properties:",
+    "                command: { type: string }",
+    "      responses:",
+    "        \"200\": { description: Executed }",
+    "        \"401\": { description: Bearer rejected }",
+    "  /optimize:",
+    "    post:",
+    "      operationId: optimize",
+    "      summary: Suggest optimisation actions from metrics",
+    "      requestBody:",
+    "        required: false",
+    "        content:",
+    "          application/json:",
+    "            schema:",
+    "              type: object",
+    "              properties:",
+    "                data: { type: object }",
+    "      responses:",
+    "        \"200\": { description: Suggestions }",
+    "        \"401\": { description: Bearer rejected }",
+    "  /auth/inspect:",
+    "    get:",
+    "      operationId: inspectAuth",
+    "      summary: Confirm the Bearer seal",
+    "      responses:",
+    "        \"200\": { description: Identity }",
+    "        \"401\": { description: Bearer rejected }",
+    "",
+  ].join("\n");
+}
+
 // ---------- Main router ----------
 export default {
   async fetch(request, env) {
@@ -327,6 +471,15 @@ export default {
       return Response.redirect(url.origin + "/static/logo.png", 302);
     }
 
+    if (path === "/.well-known/ai-plugin.json" || path === "/plugin.json") {
+      return json(pluginManifest(url.origin), 200, { "Cache-Control": "no-cache" });
+    }
+    if (path === "/openapi.yaml" || path === "/openapi.json") {
+      const body = path.endsWith(".json") ? JSON.stringify(openApi(url.origin)) : openApiYaml(url.origin);
+      const type = path.endsWith(".json") ? "application/json; charset=utf-8" : "text/yaml; charset=utf-8";
+      return new Response(body, { headers: { "Content-Type": type, ...CORS_HEADERS } });
+    }
+
     // --- Health ---
     if (path === "/healthz") {
       return json({
@@ -334,9 +487,11 @@ export default {
         engine: "Infinity Engine V\u03A9",
         platform: "Cloudflare Workers (malcolmai-live)",
         version,
-        token_policy: "admin-eternal",
+        token_policy: "admin-eternal+plugin-bearer",
         admin_token_use: "infinite",
         admin_expires: "never",
+        plugin_auth: env.MALCOLM_INFINITY_API_TOKEN ? "configured" : "absent",
+        plugin_manifest: "/.well-known/ai-plugin.json",
         coherence: 0.982,
         colo: (request.cf && request.cf.colo) || "edge",
         timestamp: new Date().toISOString(),
@@ -376,7 +531,7 @@ export default {
     }
 
     if (path === "/auth/inspect" && request.method === "GET") {
-      const user = await requireAuth(request, secret);
+      const user = await requireAuth(request, secret, env);
       if (!user) return json({ error: "Invalid or expired token" }, 401);
       return json({
         ok: true,
@@ -392,7 +547,7 @@ export default {
 
     // --- Optimizer (auth required) ---
     if (path === "/optimize" && request.method === "POST") {
-      const user = await requireAuth(request, secret);
+      const user = await requireAuth(request, secret, env);
       if (!user) return json({ error: "Invalid or expired token" }, 401);
       let data = {};
       try { data = await request.json(); } catch (e) { data = {}; }
@@ -401,7 +556,7 @@ export default {
 
     // --- Omni command (auth required) ---
     if (path === "/omni/command" && request.method === "POST") {
-      const user = await requireAuth(request, secret);
+      const user = await requireAuth(request, secret, env);
       if (!user) return json({ error: "Invalid or expired token" }, 401);
       let data = {};
       try { data = await request.json(); } catch (e) { data = {}; }
